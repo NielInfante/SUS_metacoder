@@ -1,5 +1,5 @@
-
-
+library(tidyverse)
+library(metacoder)
 
 
 
@@ -91,6 +91,31 @@ heat_tree(obj,
 
 
 
+obj$data$diff_table$wilcox_p_value <- p.adjust(obj$data$diff_table$wilcox_p_value, method = "fdr")
+range(obj$data$diff_table$wilcox_p_value, finite = TRUE)
+obj$data$diff_table$log2_median_ratio[obj$data$diff_table$wilcox_p_value > 0.05] <- 0
+obj$data$diff_table <- compare_groups(obj, dataset = "tax_abund",
+                                      cols = hmp_samples$sample_id, # What columns of sample data to use
+                                      groups = hmp_samples$Depth) # What category each sample is assigned to
+print(obj$data$diff_table)
+set.seed(1)
+heat_tree_matrix(obj,
+                 dataset = "diff_table",
+                 node_size = n_obs, # n_obs is a function that calculates, in this case, the number of OTUs per taxon
+                 node_label = taxon_names,
+                 node_color = log2_median_ratio, # A column from obj$data$diff_table
+                 node_color_range = diverging_palette(), # The built-in palette for diverging data
+                 node_color_trans = "linear", # The default is scaled by circle area
+                 node_color_interval = c(-3, 3), # The range of log2_median_ratio to display
+                 edge_color_interval = c(-3, 3), # The range of log2_median_ratio to display
+                 node_size_axis_label = "Number of OTUs",
+                 node_color_axis_label = "Log2 ratio median proportions",
+                 layout = "davidson-harel", # The primary layout algorithm
+                 initial_layout = "reingold-tilford") # The layout algorithm that initializes node locations
+
+
+
+#                 output_file = "differential_heat_tree.pdf") # Saves the plot as a pdf file
 
 
 
