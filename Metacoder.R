@@ -10,6 +10,13 @@ names(otu) <- sapply(names(otu), function(x) gsub('-', '_', as.character(x)))
 # Get metadata ready
 hmp_samples <- read_csv('Data_Files/Tara_oceans_mapping_file.csv')
 names(hmp_samples)[1] <-'sample_id'
+
+
+med_list <- filter(ungroup(hmp_samples), Province == 'Mediterranean') %>% select(sample_id)
+hmp_samples %>% ungroup() %>% group_by(Province) %>% summarize(n())
+
+
+
 hmp_samples <- hmp_samples %>% mutate(sample_id = gsub('-','_', sample_id))
 hmp_samples <- hmp_samples %>% group_by(Depth)
 hmp_samples <- hmp_samples %>% group_by(Province, add=T)
@@ -23,7 +30,6 @@ names(taxa)[1] <- 'otu_id'
 str(taxa)
 
 taxa <- taxa
-head(t2)
 taxa$Domain <- paste0("k__", taxa$Domain)
 taxa$Phylum <- paste0("p__", taxa$Phylum)
 taxa$Class <- paste0("c__", taxa$Class)
@@ -32,7 +38,7 @@ taxa$Family <- paste0("f__", taxa$Family)
 taxa$Genus <- paste0("g__", taxa$Genus)
 
 taxa <- taxa %>% mutate(lineage = paste("r__Root", Domain, Phylum, Class, Order, Family, Genus, sep=";"))
-taxa <- taxa %>% Sselect(otu_id, lineage)
+taxa <- taxa %>% select(otu_id, lineage)
 
 
 
@@ -40,6 +46,8 @@ otu[1:5, 1:3]
 
 
 to_mc <- inner_join(taxa, otu)
+
+
 
 
 to_mc[1:5, 1:4]
@@ -55,6 +63,8 @@ obj <- parse_tax_data(to_mc,
 
 
 print(obj)
+
+obj_med <- filter_obs(obj, data="tax_data", hmp_samples$Province)
 
 
 
